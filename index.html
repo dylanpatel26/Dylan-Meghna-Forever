@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Wedding</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Great+Vibes&family=Lato:wght@300;400&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="splash-screen">
+        <h1 class="splash-names">Dylan &amp; Meghna</h1>
+        <p class="splash-date">06.27.2026</p>
+    </div>
+
+    <div class="background-collage"></div>
+
+    <div class="carousel-container">
+
+        <div class="card intro-card">
+            <div class="card-content">
+                <h2>You are invited</h2>
+                <div class="ornament">❧</div>
+                <p>We would be so honored to have you join us for our wedding weekend</p>
+                <p>Please swipe to view the itinerary.</p>
+                <span class="scroll-hint">➔</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-content">
+                <h3>Sangeet</h3>
+                <p class="date">Thursday, June 25th</p>
+                <p class="time">6:00 PM - 10:00 PM</p>
+                <p class="location">The Grand Ballroom</p>
+                <p class="desc">A night of music, dance, and colorful attire.</p>
+                <button class="rsvp-btn">RSVP for Sangeet</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-content">
+                <h3>Haldi & Santak</h3>
+                <p class="date">Friday, June 26th</p>
+                <p class="time">9:00 AM Start</p>
+                <p class="location">Lakeside Mandap</p>
+                <p class="desc">Baraat begins at 8:30 AM.</p>
+                <button class="rsvp-btn">RSVP for Ceremony</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-content">
+                <h3>Wedding</h3>
+                <p class="date">Saturday, June 27th</p>
+                <p class="time">9:00 AM - 4:00 PM</p>
+                <p class="location">Grand Palace Banquet Hall<br>
+                    11119 Folsom Blvd, Rancho Cordova, CA 95670</p>
+                <p class="desc">Baraat begins at 9:30 AM.<br>Breakfast Snack & Lunch to be served</p>
+                <button class="rsvp-btn">RSVP for Reception</button>
+            </div>
+        </div>
+
+        <div class="card" id="rsvp-card">
+            <div class="card-content">
+                <h3>RSVP</h3>
+
+                <div id="rsvp-loading">
+                    <p>Finding your invitation...</p>
+                </div>
+
+                <div id="rsvp-form" style="display: none;">
+                    <p>Welcome, <span id="family-display-name" style="font-weight:bold; color:#800020;"></span>!</p>
+                    <p style="font-size:0.9rem;">Who will be attending?</p>
+
+                    <div id="members-container" style="text-align: left; margin: 20px 0;">
+                    </div>
+
+                    <button class="rsvp-btn" onclick="submitRSVP()">Confirm Attendance</button>
+                </div>
+
+                <div id="rsvp-success" style="display: none;">
+                    <div class="ornament">❧</div>
+                    <p>Thank you!</p>
+                    <p>Your RSVP has been recorded.</p>
+                </div>
+
+                <div id="rsvp-error" style="display: none;">
+                    <p>We couldn't find your invitation code.</p>
+                    <p>Please enter it manually:</p>
+                    <input type="text" id="manual-code" placeholder="Enter Code (e.g. FAM01)" style="padding: 5px;">
+                    <button class="rsvp-btn" onclick="manualLookup()">Search</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxvsyf8NAH24MVJRZd9yU_umeuuTPRcXtBAM-9-ed32ZPekY9BGqUW9kP7ljJHAOAxEIQ/exec";
+
+            // 1. On Load: Check URL for ?id=FAM001
+            window.onload = function () {
+                const urlParams = new URLSearchParams(window.location.search);
+                const familyId = urlParams.get('id');
+
+                if (familyId) {
+                    fetchFamily(familyId);
+                } else {
+                    // No ID in URL? Show error/manual input
+                    document.getElementById('rsvp-loading').style.display = 'none';
+                    document.getElementById('rsvp-error').style.display = 'block';
+                }
+            };
+
+            let currentFamilyId = "";
+
+            // 2. Fetch Family Data
+            // 2. Fetch Family Data
+            function fetchFamily(id) {
+                currentFamilyId = id;
+                document.getElementById('rsvp-loading').style.display = 'block';
+                document.getElementById('rsvp-error').style.display = 'none';
+
+                fetch(SCRIPT_URL + "?id=" + id)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.result === "success") {
+                            document.getElementById('rsvp-loading').style.display = 'none';
+
+                            // NEW CHECK: Has this family already RSVP'd?
+                            // We check if data.current_status has text in it.
+                            if (data.current_status && data.current_status !== "") {
+
+                                // Show the Success Message immediately
+                                document.getElementById('rsvp-success').style.display = 'block';
+
+                                // Update the text to be warm and welcoming
+                                const successDiv = document.getElementById('rsvp-success');
+                                successDiv.innerHTML = `
+                            <div class="ornament">❧</div>
+                            <p>Welcome back, ${data.family_name}!</p>
+                            <p>We have received your RSVP.</p>
+                            <p style="margin-top:10px; font-style:italic;">We cannot wait to share our special day with you.</p>
+                        `;
+
+                            } else {
+                                // No RSVP yet? Show the Form normally.
+                                document.getElementById('rsvp-form').style.display = 'block';
+                                document.getElementById('family-display-name').innerText = data.family_name;
+
+                                const container = document.getElementById('members-container');
+                                container.innerHTML = "";
+                                const members = data.members.split(",");
+
+                                members.forEach(member => {
+                                    member = member.trim();
+                                    const div = document.createElement('div');
+                                    div.innerHTML = `
+                                <label style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                                    <input type="checkbox" class="rsvp-checkbox" value="${member}" style="transform: scale(1.5);">
+                                    <span>${member}</span>
+                                </label>
+                            `;
+                                    container.appendChild(div);
+                                });
+                            }
+
+                        } else {
+                            alert("Invite not found!");
+                            document.getElementById('rsvp-loading').style.display = 'none';
+                            document.getElementById('rsvp-error').style.display = 'block';
+                        }
+                    });
+            }
+
+            // 3. Submit Data Back to Sheet
+            function submitRSVP() {
+                const checkboxes = document.querySelectorAll('.rsvp-checkbox');
+                let responses = [];
+
+                checkboxes.forEach(box => {
+                    responses.push(box.value + ": " + (box.checked ? "Yes" : "No"));
+                });
+
+                const finalString = responses.join(", ");
+
+                // Change button text
+                const btn = document.querySelector('.rsvp-btn');
+                btn.innerText = "Sending...";
+
+                fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ id: currentFamilyId, rsvp: finalString })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.result === "success") {
+                            document.getElementById('rsvp-form').style.display = 'none';
+                            document.getElementById('rsvp-success').style.display = 'block';
+                        }
+                    });
+            }
+
+            function manualLookup() {
+                const code = document.getElementById('manual-code').value;
+                fetchFamily(code);
+            }
+        </script>
+
+    </div>
+
+</body>
+
+</html>
