@@ -7,25 +7,46 @@
 
 body {
     font-family: 'Lato', sans-serif;
-    background-color: #1a1a1a; /* Dark base before background loads */
+    background-color: #1a1a1a;
+    /* Dark base before background loads */
     color: #333;
-    overflow: hidden; /* Prevents vertical scroll, we only want horizontal */
+    overflow: hidden;
+    /* Prevents vertical scroll, we only want horizontal */
 }
 
 /* --- ANIMATIONS --- */
 
 /* Animation for the Splash Screen (Fade Out) */
 @keyframes fadeOutSplash {
-    0% { opacity: 1; visibility: visible; }
-    80% { opacity: 1; }
-    100% { opacity: 0; visibility: hidden; }
+    0% {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
 }
 
 /* Animation for Background & Cards (Fade In) */
 @keyframes fadeInContent {
-    0% { opacity: 0; }
-    50% { opacity: 0; } /* Wait for splash */
-    100% { opacity: 1; }
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    /* Wait for splash */
+    100% {
+        opacity: 1;
+    }
 }
 
 /* --- 1. SPLASH SCREEN --- */
@@ -35,38 +56,52 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: #800020; /* Deep Maroon */
+    background: #800020;
+    /* Deep Maroon */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 100; /* Sit on top of everything */
-    color: #d4af37; /* Gold */
-    
+    z-index: 100;
+    /* Sit on top of everything */
+    color: #d4af37;
+    /* Gold */
+
     /* Apply the animation: wait 3s, then fade out */
     animation: fadeOutSplash 3.5s forwards ease-in-out;
-    pointer-events: none; /* Allows clicking through it once hidden */
+    pointer-events: none;
+    /* Allows clicking through it once hidden */
 }
 
 .splash-names {
-    /* Updated to use the new script font */
-    font-family: 'Great Vibes', cursive; 
-    
-    /* Increased size slightly for impact */
-    font-size: 5rem; 
-    
-    /* Normal weight is usually best for scripts */
-    font-weight: 400; 
-    
+    font-family: 'Great Vibes', cursive;
+
+    /* THE FIX: Dynamic Sizing */
+    /* This formula means: Start at 3rem. As the screen gets wider, grow to 8% of width. Cap it at 6rem. */
+    font-size: clamp(3rem, 8vw, 6rem);
+
+    /* Prevent wrapping */
+    white-space: nowrap;
+
+    /* Ensure it doesn't overflow off the edge if names are very long */
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Just in case, though clamp usually prevents this */
+
+    font-weight: 400;
     letter-spacing: 2px;
-    margin-bottom: 0; /* Tighter spacing to the date */
+    margin-bottom: 0;
+    text-align: center;
 }
 
 .splash-date {
-    margin-top: 5px;
-    font-family: 'Lato', sans-serif; /* Clean sans-serif to contrast the script */
-    font-size: 1.5rem;
-    letter-spacing: 4px; /* Wide spacing looks very elegant */
+    margin-top: 10px;
+    font-family: 'Lato', sans-serif;
+    
+    /* Dynamically size the date */
+    font-size: clamp(0.8rem, 2vw, 1.2rem); 
+    letter-spacing: clamp(2px, 1vw, 5px); /* Spacing also shrinks on mobile! */
     text-transform: uppercase;
     opacity: 0.9;
 }
@@ -79,41 +114,44 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    
+
     /* Placeholder for your collage image */
-    background-image: url('https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=1974&auto=format&fit=crop'); 
+    background-image: url('https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=1974&auto=format&fit=crop');
     background-size: cover;
     background-position: center;
-    
+
     /* Overlay to darken image so text is readable */
-    filter: brightness(0.4) sepia(0.2); 
-    
-    animation: fadeInContent 4s forwards; /* Fades in slowly */
+    filter: brightness(0.4) sepia(0.2);
+
+    animation: fadeInContent 4s forwards;
+    /* Fades in slowly */
 }
 
 /* --- 3. CAROUSEL CONTAINER --- */
 .carousel-container {
     display: flex;
-    flex-wrap: nowrap; /* FORCE single row, never wrap to next line */
+    flex-wrap: nowrap;
+    /* FORCE single row, never wrap to next line */
     width: 100vw;
     height: 100vh;
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
     align-items: center;
-    
+
     /* THE FIX: Dynamic padding to center the active card */
     /* This calculates: (Screen Width / 2) - (Half Card Width) */
     /* It ensures the first and last cards can be scrolled to the dead center */
-    padding: 0 calc(50vw - 200px); 
-    
-    gap: 40px; /* Adds space between the cards */
-    
+    padding: 0 calc(50vw - 200px);
+
+    gap: 40px;
+    /* Adds space between the cards */
+
     /* Hide scrollbar */
-    scrollbar-width: none; 
+    scrollbar-width: none;
     -ms-overflow-style: none;
-    
-    opacity: 0; 
-    animation: fadeInContent 4.5s forwards; 
+
+    opacity: 0;
+    animation: fadeInContent 4.5s forwards;
 }
 
 .carousel-container::-webkit-scrollbar {
@@ -123,42 +161,51 @@ body {
 /* --- CARDS --- */
 .card {
     /* STRICT SIZING */
-    flex: 0 0 auto; /* 0 grow, 0 shrink, auto basis */
-    
+    flex: 0 0 auto;
+    /* 0 grow, 0 shrink, auto basis */
+
     /* Mobile Size */
-    width: 85vw; 
-    
+    width: 85vw;
+
     /* Desktop limit (prevents it from getting too huge) */
-    max-width: 400px; 
-    
-    height: 60vh; /* Reduced slightly to ensure it fits on all screens */
-    
+    max-width: 400px;
+
+    height: 60vh;
+    /* Reduced slightly to ensure it fits on all screens */
+
     background-color: rgba(255, 253, 240, 0.95);
     border-radius: 12px;
-    scroll-snap-align: center; /* Crucial: Locks card to center of screen */
-    
+    scroll-snap-align: center;
+    /* Crucial: Locks card to center of screen */
+
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
     padding: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     border: 1px solid #d4af37;
-    
+
     /* Ensure images/content don't break the card size */
-    overflow: hidden; 
+    overflow: hidden;
 }
 
 /* Typography inside cards */
-.card h2, .card h3 {
+.card h2,
+.card h3 {
     font-family: 'Cinzel', serif;
     color: #800020;
     margin-bottom: 10px;
 }
 
-.card h2 { font-size: 2rem; }
-.card h3 { font-size: 1.8rem; }
+.card h2 {
+    font-size: 2rem;
+}
+
+.card h3 {
+    font-size: 1.8rem;
+}
 
 .ornament {
     font-size: 2rem;
@@ -171,9 +218,21 @@ body {
     line-height: 1.5;
 }
 
-.card .date { font-weight: bold; margin-top: 15px; }
-.card .time { font-style: italic; color: #555; }
-.card .location { text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
+.card .date {
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.card .time {
+    font-style: italic;
+    color: #555;
+}
+
+.card .location {
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
 
 .scroll-hint {
     font-size: 2rem;
@@ -184,9 +243,22 @@ body {
 }
 
 @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {transform: translateX(0);}
-    40% {transform: translateX(10px);}
-    60% {transform: translateX(5px);}
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateX(0);
+    }
+
+    40% {
+        transform: translateX(10px);
+    }
+
+    60% {
+        transform: translateX(5px);
+    }
 }
 
 /* Buttons */
